@@ -1,4 +1,4 @@
-// import mint.ui.VolumeTray;
+import mint.ui.VolumeTray;
 import backend.Controls;
 import backend.MintFileManager;
 import lime.app.Future;
@@ -68,7 +68,7 @@ class MainState extends FlxState {
 		FlxG.autoPause = false;
 
 		new backend.Controls();
-		// new VolumeTray(); // wip
+		new VolumeTray();
 
 		open(new menus.MainMenu());
 
@@ -141,14 +141,14 @@ class MainState extends FlxState {
 	public function onKeyDown(repeated:Bool, keybind:String, key:String) {
 		// trace('Repeated: $repeated, Keybind: $keybind');
 
-		// switch keybind {
-		// 	case 'Volume_Down':
-		// 		VolumeTray.volume -= 5;
-		// 	case 'Volume_Up':
-		// 		VolumeTray.volume += 5;
-		// 	case 'Mute':
-		// 		VolumeTray.volume = 0;
-		// }
+		switch keybind {
+			case 'Volume_Down':
+				VolumeTray.volume -= 5;
+			case 'Volume_Up':
+				VolumeTray.volume += 5;
+			case 'Volume_Mute':
+				VolumeTray.toggleMute();
+		}
 	}
 
 	public function onKeyUp(keybind:String, key:String) {}
