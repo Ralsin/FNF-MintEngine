@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<app transparent="true" systemChrome="NONE" title="Friday Night Funkin': Mint Engine" file="MintEngine" packageName="com.ralsi.mintengine" package="com.ralsi.mintengine" main="Main" version="0.0.1" company="Ralsi" />
+	<!-- <set name="APP_ID" value="0x0100f6c013bbc000" /> -->
+	<!-- <app preloader="flixel.system.FlxPreloader" /> -->
+	<!-- <set name="SWF_VERSION" value="11.8" /> -->
+
+	<window width="1280" height="720" fps="" background="0x00000000" hardware="true" vsync="false" />
+	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false" />
+	<!-- <window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" resizable="false" /> -->
+
+	<classpath name="source" />
+	<set name="BUILD_DIR" value="export/debug" if="debug" />
+	<set name="BUILD_DIR" value="export/release" unless="debug" />
+	<set name="BUILD_DIR" value="export/32bit" if="32bits" />
+	<!-- <library name="shared" preload="true" />
+	<assets path="assets/preload" rename="assets" />
+	<assets path="assets/shared"  rename="assets/shared" library="shared" />
+	<assets path="assets/fonts"   rename="assets/fonts" /> -->
+	<assets path="assets" />
+
+	<!-- <haxelib name="hxWebSockets" /> -->
+	<haxelib name="flixel" />
+	<haxelib name="flixel-addons" />
+	<haxelib name="flixel-ui" />
+	<haxelib name="hscript" />
+	<define name="hscriptPos" />
+	<!-- <haxelib name="hxCodec"/> -->
+	<haxedef name="FLX_NO_KEYBOARD" />
+	<haxedef name="FLX_NO_SOUND_TRAY" />
+	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
+	<haxedef name="HXC_DEBUG_TRACE" if="debug" />
+	<haxedef name="FLX_NO_DEBUG" unless="debug" />
+	<!-- <haxedef name="NAPE_RELEASE_BUILD" unless="debug" /> -->
+	<!-- <haxedef name="HXCPP_CHECK_POINTER" if="CRASH_HANDLER" /> -->
+	<!-- <haxedef name="HXCPP_STACK_LINE" if="CRASH_HANDLER" /> -->
+</project>
