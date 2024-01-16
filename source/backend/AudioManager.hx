@@ -17,7 +17,7 @@ class AudioManager {
 	// public static var vocals2(default, null):FlxSound = new FlxSound();
 	public static var sounds(default, null):SoundsList = [];
 
-	public static var offset:Float = 0.;
+	public static var offset:Int = 0;
 	public static var curTrackName(default, null):String;
 
 	public static var crochet(default, null):Float = .6;
@@ -26,7 +26,7 @@ class AudioManager {
 
 	var audioCache:Map<String, Sound> = [];
 
-	public static function playMusic(name:String, bpm:Float, audioOffset:Float = 0., volume:Float = .5, looped:Bool = true) {
+	public static function playMusic(name:String, bpm:Float, audioOffset:Int = 0, volume:Float = .5, looped:Bool = true) {
 		if (curTrackName == name)
 			return trace('[playMusic] name: $name, bpm: $bpm, offset: $audioOffset, looped: $looped');
 		if (instrumental != null && instrumental.playing) {
@@ -55,7 +55,7 @@ class AudioManager {
 		offset = audioOffset;
 		trace('[playMusic] name: $name, bpm: $bpm, offset: $audioOffset, looped: $looped');
 	}
-	public static function loadSong(inst:String, vocal:String, difficulty:String, bpm:Float, audioOffset:Float = 0.) {
+	public static function loadSong(inst:String, vocal:String, difficulty:String, bpm:Float, audioOffset:Int = 0) {
 		// var instrumentals:Sound = audioCache.get(inst);
 		// var thevoicesinmyhead:Sound = audioCache.get(vocal);
 		// if (instrumentals != null)
