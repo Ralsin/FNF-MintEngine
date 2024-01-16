@@ -89,7 +89,7 @@ class MainState extends FlxState {
 
 		if (curSubState != null) {
 			curSubState.update(elapsed);
-			var curBeat:Int = Math.round((AudioManager.instrumental.time + AudioManager.offset - 240) * .001 / AudioManager.crochet);
+			var curBeat:Int = Math.floor((AudioManager.instrumental.time + AudioManager.offset) * .001 / AudioManager.crochet);
 			// trace(AudioManager.instrumental.time, curBeat, AudioManager.beat);
 			if (curBeat != AudioManager.beat) {
 				AudioManager.beat = curBeat;
