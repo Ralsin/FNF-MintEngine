@@ -144,14 +144,23 @@ class MainState extends FlxState {
 		switch keybind {
 			case 'Volume_Down':
 				VolumeTray.volume -= 5;
+				return;
 			case 'Volume_Up':
 				VolumeTray.volume += 5;
+				return;
 			case 'Volume_Mute':
 				VolumeTray.toggleMute();
+				return;
 		}
+
+		if (curSubState != null)
+			curSubState.onKeyDown(repeated, keybind, key);
 	}
 
-	public function onKeyUp(keybind:String, key:String) {}
+	public function onKeyUp(keybind:String, key:String) {
+		if (curSubState != null)
+			curSubState.onKeyUp(keybind, key);
+	}
 
 	function set_hue(value:Float) {
 		hue = value % 360.;

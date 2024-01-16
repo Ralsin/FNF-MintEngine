@@ -61,19 +61,15 @@ class Controls {
 			var key = ThanksFlixelInput.resolve(event);
 			if (holdTime.get(key) == null) {
 				for (bind => keys in keybinds) {
-					if (keys[0] == key || keys[1] == key) {
+					if (keys[0] == key || keys[1] == key)
 						MainState.instance.onKeyDown(false, bind, key);
-						MainState.instance.curSubState.onKeyDown(false, bind, key);
-					}
 				}
 				holdTime.set(key, 0.);
 			} else {
 				for (key in holdTime.keys()) {
 					for (bind => keys in keybinds) {
-						if (keys[0] == key || keys[1] == key) {
+						if (keys[0] == key || keys[1] == key)
 							MainState.instance.onKeyDown(true, bind, key);
-							MainState.instance.curSubState.onKeyDown(true, bind, key);
-						}
 					}
 				}
 			}
