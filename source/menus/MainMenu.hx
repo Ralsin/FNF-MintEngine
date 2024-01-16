@@ -32,7 +32,7 @@ class MainMenu extends extendable.Menu {
 		changeSelection(0);
 		menuItems[0].animation.play('selected');
 
-		// AudioManager.playMusic('OneShot Mania - Main Menu', 140, 1 / 7);
+		AudioManager.playMusic('freakyMenu', 102);
 		MainState.instance.camState.moveFunction = (start, end, time) -> {
 			return end;
 		};
@@ -79,10 +79,9 @@ class MainMenu extends extendable.Menu {
 	}
 
 	override function onBeatHit(curBeat:Int) {
-		if (curBeat % 2 == 0) {
+		if (curBeat % 4 == 0) {
 			MainState.instance.gradientAlpha = .8;
-			if (curBeat % 4 == 0)
-				camera.zoom += .01;
+			camera.zoom += .01;
 		}
 		camera.zoom += .01;
 	}
