@@ -67,8 +67,8 @@ class MainState extends FlxState {
 		FlxG.mouse.useSystemCursor = true;
 		FlxG.autoPause = false;
 
-		new backend.Controls();
-		new VolumeTray();
+		backend.Controls.init();
+		VolumeTray.init();
 
 		open(new menus.MainMenu());
 
@@ -76,6 +76,7 @@ class MainState extends FlxState {
 	}
 
 	override function update(elapsed:Float) {
+		Controls.update(elapsed);
 		camBG.zoom = camState.zoom = camState.zoom + (1. - camState.zoom) * (elapsed * 8.);
 		if (updateBG == true) {
 			hue = (hue + elapsed * 32.);

@@ -1,5 +1,6 @@
 package mint.ui;
 
+import flixel.FlxG;
 import flixel.FlxCamera;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
@@ -18,15 +19,19 @@ class VolumeTray {
 	static var volumeLabel:FlxText;
 	static var volumeSlider:FlxText;
 
-	public function new() {
+	public static function init() {
+		if (canvas != null)
+			return;
+
 		canvas = new FlxCamera(16, 640, 202, 64);
 		canvas.bgColor = 0x00000000;
 		canvas.alpha = 0.;
 		canvas.active = false;
-		flixel.FlxG.cameras.add(canvas, false);
+		canvas.visible = false;
+		FlxG.cameras.add(canvas, false);
 
 		// var bg = new FlxSprite().makeGraphic(1, 1, 0x99111119);
-		var bg = flixel.util.FlxSpriteUtil.drawRoundRect(new FlxSprite().makeGraphic(202, 64, 0x00000000, true, 'VolumeTrayBGWorkaround'), 0., 0., 200., 64., 16., 16., 0xCC111115);
+		var bg = flixel.util.FlxSpriteUtil.drawRoundRect(new FlxSprite().makeGraphic(202, 64, 0x00000000, true, 'VolumeTrayBGWorkaround'), 0., 0., 202., 64., 16., 16., 0xCC111115);
 		bg.setGraphicSize(202., 64.);
 		volumeLabel = new FlxText(8., 8., 186., 'Volume: 100%');
 		volumeLabel.setFormat(flixel.system.FlxAssets.FONT_DEFAULT, 16, FlxColor.WHITE, FlxTextAlign.LEFT, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
@@ -41,9 +46,16 @@ class VolumeTray {
 		}
 
 		AudioManager.loadSound('volumeChange', 'volume-change', true);
+		volume = FlxG.save.data.volume;
+		canvas.visible = true;
 	}
 
 	static function set_volume(v:Int) {
+		if (canvas.visible == false) {
+			FlxG.sound.volume = v * .01;
+			return volume = v;
+		}
+
 		if (muted && v != -1) {
 			muted = false;
 			v = Std.int(Math.min(Math.max(cast mutedVolume + v, 0), 100));
@@ -52,10 +64,6 @@ class VolumeTray {
 
 		if (volume == v)
 			return v;
-
-		AudioManager.playSound('volumeChange', 1);
-
-		flixel.FlxG.sound.volume = v * .01;
 
 		volumeLabel.text = 'Volume: $v%';
 		var sliderBars = '';
@@ -72,14 +80,18 @@ class VolumeTray {
 		canvas.alpha = 1.;
 		canvas.active = true;
 
-		tween = flixel.tweens.FlxTween.tween(canvas, {alpha: 0.}, 1., {
+		tween = flixel.tweens.FlxTween.tween(canvas, {alpha: 0.}, .5, {
 			startDelay: 1.,
 			onComplete: (twn) -> {
-				// FlxG.cameras.remove(canvas, false);
 				canvas.active = false;
 			}
 		});
 
+		FlxG.save.data.volume = v;
+		FlxG.save.flush();
+
+		FlxG.sound.volume = v * .01;
+		AudioManager.playSound('volumeChange', 1);
 		return volume = v;
 	}
 

@@ -3,7 +3,6 @@ package backend;
 import flixel.input.FlxInput;
 import openfl.events.KeyboardEvent;
 import flixel.FlxG;
-import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 
 typedef Keybinds = Map<String, Array<String>>;
@@ -28,25 +27,18 @@ final defaultKeybinds:Keybinds = [
 ];
 
 class Controls {
-	static var save:FlxSave;
 	static var keybinds:Keybinds;
-	static var reverseKeybinds:Map<String, String> = [];
-
-	// public static var justPressed(default, null):Map<String, Bool> = [];
-	// public static var held(default, null):Map<String, Bool> = [];
-	// public static var justReleased(default, null):Map<String, Bool> = [];
 	static var holdTime:Map<String, Float> = [];
 
-	public function new() {
-		save = FlxG.save; // new FlxSave();
-		#if windows
-		// var saveDir:String = StringTools.replace(lime.system.System.applicationDirectory, '\\', '/') + 'saves/';
-		#end
-		if (save.data.keybinds == null) {
-			keybinds = save.data.keybinds = defaultKeybinds;
-			save.flush();
+	public static function init() {
+		if (keybinds != null)
+			return;
+
+		if (FlxG.save.data.keybinds == null) {
+			keybinds = FlxG.save.data.keybinds = defaultKeybinds;
+			FlxG.save.flush();
 		} else
-			keybinds = save.data.keybinds;
+			keybinds = FlxG.save.data.keybinds;
 
 		// checking for missing keybinds
 		var anyKeybindMissing:Bool = false;
@@ -86,6 +78,10 @@ class Controls {
 		});
 	}
 
+	public static function update(t:Float)
+		for (k in holdTime.keys())
+			holdTime[k] += t;
+
 	public static function rebind(name:String, key:FlxKey, isALT:Bool) {
 		var keys:Array<String> = keybinds.get(name);
 		if (isALT)
@@ -97,18 +93,8 @@ class Controls {
 	}
 
 	public static function saveKeybinds() {
-		save.data.keybinds = keybinds;
-		save.flush();
-	}
-
-	public static function rebindKeys() {
-		reverseKeybinds.clear();
-		for (bind => keys in keybinds) {
-			if (keys[0] != 'NONE')
-				reverseKeybinds.set(keys[0], bind);
-			if (keys[1] != 'NONE')
-				reverseKeybinds.set(keys[1], bind);
-		}
+		FlxG.save.data.keybinds = keybinds;
+		FlxG.save.flush();
 	}
 
 	public static function isKeyHeld(key:String) {
