@@ -5,10 +5,17 @@
 	<window width="1280" height="720" fps="" background="0x00000000" hardware="true" vsync="false" />
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false" />
 
+
+	<!-- In case you want to hide the assets folder. Useful to prevent assets editing. Don't forget to clear the bin folder afterwards! -->
+	<define name="EMBED_ASSETS" />
+
+
 	<classpath name="source" />
 	<set name="BUILD_DIR" value="export/debug" if="debug" />
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
-	<assets path="assets" />
+	<haxedef name="EMBED_ASSETS" if="EMBED_ASSETS" />
+	<assets path="assets" embed="true" if="EMBED_ASSETS" />
+	<assets path="assets" unless="EMBED_ASSETS" />
 
 	<!-- <haxelib name="hxWebSockets" /> -->
 	<haxelib name="flixel" />
