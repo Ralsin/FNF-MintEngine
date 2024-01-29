@@ -66,6 +66,7 @@ class MainState extends FlxState {
 
 		FlxG.mouse.useSystemCursor = true;
 		FlxG.autoPause = false;
+		FlxG.fixedTimestep = false;
 
 		backend.Controls.init();
 		VolumeTray.init();
@@ -77,7 +78,6 @@ class MainState extends FlxState {
 
 	override function update(elapsed:Float) {
 		Controls.update(elapsed);
-		camBG.zoom = camState.zoom = camState.zoom + (1. - camState.zoom) * (elapsed * 8.);
 		if (updateBG == true) {
 			hue = (hue + elapsed * 32.);
 			gradient.color = FlxColor.fromHSL(hue, 1., .5, 1.);
@@ -98,6 +98,7 @@ class MainState extends FlxState {
 					curSubState.onBeatHit(AudioManager.beat);
 			}
 		}
+		camBG.zoom = camState.zoom = camState.zoom + (1. - camState.zoom) * (elapsed * 8.);
 
 		super.update(elapsed);
 	}
