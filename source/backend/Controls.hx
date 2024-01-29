@@ -6,7 +6,6 @@ import flixel.FlxG;
 import flixel.input.keyboard.FlxKey;
 
 typedef Keybinds = Map<String, Array<String>>;
-typedef Key = FlxInput<Int>;
 
 final defaultKeybinds:Keybinds = [
 	"UI_Left" => ["LEFT", "A"],
@@ -48,9 +47,8 @@ class Controls {
 				keybinds.set(keybind, defaultKeybinds.get(keybind));
 			}
 
-		ThanksFlixelInput.init();
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, (event:KeyboardEvent) -> {
-			var key = ThanksFlixelInput.resolve(event);
+			var key = resolve(event);
 			if (holdTime.get(key) == null) {
 				for (bind => keys in keybinds) {
 					if (keys[0] == key || keys[1] == key)
@@ -67,7 +65,7 @@ class Controls {
 			}
 		});
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, (event:KeyboardEvent) -> {
-			var key = ThanksFlixelInput.resolve(event);
+			var key = resolve(event);
 			holdTime.remove(key);
 			for (bind => keys in keybinds) {
 				if (keys[0] == key || keys[1] == key) {
@@ -105,75 +103,57 @@ class Controls {
 		var keys = keybinds.get(keybind);
 		return isKeyHeld(keys[0]) || isKeyHeld(keys[1]);
 	}
-}
 
-// bullshit flixel does so i got it for compability
-private class ThanksFlixelInput {
-	// static var _keyListMap:Map<Int, Int> = [];
-	static var _nativeCorrection:Map<String, String> = [];
+	static var _nativeCorrection:Map<String, String> = [
+		'0_64' => 'INSERT',
+		'0_65' => 'END',
+		'0_67' => 'PAGEDOWN',
+		'0_69' => 'NONE',
+		'0_73' => 'PAGEUP',
+		'0_266' => 'DELETE',
+		'123_222' => 'LBRACKET',
+		'125_187' => 'RBRACKET',
+		'126_233' => 'GRAVEACCENT',
+		'0_80' => 'F1',
+		'0_81' => 'F2',
+		'0_82' => 'F3',
+		'0_83' => 'F4',
+		'0_84' => 'F5',
+		'0_85' => 'F6',
+		'0_86' => 'F7',
+		'0_87' => 'F8',
+		'0_88' => 'F9',
+		'0_89' => 'F10',
+		'0_90' => 'F11',
+		'48_224' => 'ZERO',
+		'49_38' => 'ONE',
+		'50_233' => 'TWO',
+		'51_34' => 'THREE',
+		'52_222' => 'FOUR',
+		'53_40' => 'FIVE',
+		'54_189' => 'SIX',
+		'55_232' => 'SEVEN',
+		'56_95' => 'EIGHT',
+		'57_231' => 'NINE',
+		'48_64' => 'NUMPADZERO',
+		'49_65' => 'NUMPADONE',
+		'50_66' => 'NUMPADTWO',
+		'51_67' => 'NUMPADTHREE',
+		'52_68' => 'NUMPADFOUR',
+		'53_69' => 'NUMPADFIVE',
+		'54_70' => 'NUMPADSIX',
+		'55_71' => 'NUMPADSEVEN',
+		'56_72' => 'NUMPADEIGHT',
+		'57_73' => 'NUMPADNINE',
+		'43_75' => 'NUMPADPLUS',
+		'45_77' => 'NUMPADMINUS',
+		'47_79' => 'SLASH',
+		'46_78' => 'NUMPADPERIOD',
+		'42_74' => 'NUMPADMULTIPLY'
+	];
 
-	public static function init() {
-		// for (code in FlxKey.fromStringMap) {
-		// 	if (code != FlxKey.ANY && code != FlxKey.NONE) {
-		// 		// var input = new flixel.input.FlxInput(code);
-		// 		// _keyListArray.push(input);
-		// 		_keyListMap.set(code, new FlxInput(code));
-		// 	}
-		// }
-
-		_nativeCorrection.set("0_64", "INSERT");
-		_nativeCorrection.set("0_65", "END");
-		_nativeCorrection.set("0_67", "PAGEDOWN");
-		_nativeCorrection.set("0_69", "NONE");
-		_nativeCorrection.set("0_73", "PAGEUP");
-		_nativeCorrection.set("0_266", "DELETE");
-		_nativeCorrection.set("123_222", "LBRACKET");
-		_nativeCorrection.set("125_187", "RBRACKET");
-		_nativeCorrection.set("126_233", "GRAVEACCENT");
-
-		_nativeCorrection.set("0_80", "F1");
-		_nativeCorrection.set("0_81", "F2");
-		_nativeCorrection.set("0_82", "F3");
-		_nativeCorrection.set("0_83", "F4");
-		_nativeCorrection.set("0_84", "F5");
-		_nativeCorrection.set("0_85", "F6");
-		_nativeCorrection.set("0_86", "F7");
-		_nativeCorrection.set("0_87", "F8");
-		_nativeCorrection.set("0_88", "F9");
-		_nativeCorrection.set("0_89", "F10");
-		_nativeCorrection.set("0_90", "F11");
-
-		_nativeCorrection.set("48_224", "ZERO");
-		_nativeCorrection.set("49_38", "ONE");
-		_nativeCorrection.set("50_233", "TWO");
-		_nativeCorrection.set("51_34", "THREE");
-		_nativeCorrection.set("52_222", "FOUR");
-		_nativeCorrection.set("53_40", "FIVE");
-		_nativeCorrection.set("54_189", "SIX");
-		_nativeCorrection.set("55_232", "SEVEN");
-		_nativeCorrection.set("56_95", "EIGHT");
-		_nativeCorrection.set("57_231", "NINE");
-
-		_nativeCorrection.set("48_64", "NUMPADZERO");
-		_nativeCorrection.set("49_65", "NUMPADONE");
-		_nativeCorrection.set("50_66", "NUMPADTWO");
-		_nativeCorrection.set("51_67", "NUMPADTHREE");
-		_nativeCorrection.set("52_68", "NUMPADFOUR");
-		_nativeCorrection.set("53_69", "NUMPADFIVE");
-		_nativeCorrection.set("54_70", "NUMPADSIX");
-		_nativeCorrection.set("55_71", "NUMPADSEVEN");
-		_nativeCorrection.set("56_72", "NUMPADEIGHT");
-		_nativeCorrection.set("57_73", "NUMPADNINE");
-
-		_nativeCorrection.set("43_75", "NUMPADPLUS");
-		_nativeCorrection.set("45_77", "NUMPADMINUS");
-		_nativeCorrection.set("47_79", "SLASH");
-		_nativeCorrection.set("46_78", "NUMPADPERIOD");
-		_nativeCorrection.set("42_74", "NUMPADMULTIPLY");
-	}
-
-	public static function resolve(e:KeyboardEvent):String {
-		var code = _nativeCorrection.get(e.charCode + "_" + e.keyCode);
+	static function resolve(e:KeyboardEvent):String {
+		var code = _nativeCorrection.get(e.charCode + '_' + e.keyCode);
 		return code == null ? FlxKey.toStringMap.get(e.keyCode) : code;
 	}
 }
