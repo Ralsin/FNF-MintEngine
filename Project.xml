@@ -17,10 +17,8 @@
 	<assets path="assets" embed="true" if="EMBED_ASSETS" />
 	<assets path="assets" unless="EMBED_ASSETS" />
 
-	<!-- <haxelib name="hxWebSockets" /> -->
 	<haxelib name="flixel" />
 	<haxelib name="flixel-addons" />
-	<haxelib name="flixel-ui" />
 	<haxelib name="hscript" />
 	<define name="hscriptPos" />
 	<haxedef name="FLX_NO_KEYBOARD" />
