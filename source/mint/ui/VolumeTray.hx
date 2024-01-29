@@ -8,7 +8,7 @@ import flixel.FlxSprite;
 import backend.AudioManager;
 
 class VolumeTray {
-	public static var volume(default, set):Int = 100;
+	public static var volume(default, set):Int = 50;
 	public static var muted(default, null):Bool = false;
 	static var mutedVolume:Int = 0; // to store the value after the mute
 	static var tween:flixel.tweens.misc.VarTween;
@@ -46,7 +46,10 @@ class VolumeTray {
 		}
 
 		AudioManager.loadSound('volumeChange', 'volume-change', true);
-		volume = FlxG.save.data.volume;
+		if (FlxG.save.data.volume != null)
+			volume = FlxG.save.data.volume;
+		else
+			volume = volume;
 		canvas.visible = true;
 	}
 
@@ -65,6 +68,26 @@ class VolumeTray {
 		if (volume == v)
 			return v;
 
+		onVolumeChange(v);
+
+		FlxG.save.data.volume = v;
+		FlxG.save.flush();
+
+		FlxG.sound.volume = v * .01;
+		AudioManager.playSound('volumeChange', 1);
+		return volume = v;
+	}
+
+	public static function toggleMute() {
+		muted = !muted;
+		if (muted) {
+			mutedVolume = volume == 0 ? 75 : cast volume;
+			volume = -1;
+		} else
+			volume = cast mutedVolume;
+	}
+
+	public static dynamic function onVolumeChange(v:Int) {
 		volumeLabel.text = 'Volume: $v%';
 		var sliderBars = '';
 		for (i in 0...Std.int(v * .1))
@@ -86,21 +109,5 @@ class VolumeTray {
 				canvas.active = false;
 			}
 		});
-
-		FlxG.save.data.volume = v;
-		FlxG.save.flush();
-
-		FlxG.sound.volume = v * .01;
-		AudioManager.playSound('volumeChange', 1);
-		return volume = v;
-	}
-
-	public static function toggleMute() {
-		muted = !muted;
-		if (muted) {
-			mutedVolume = volume == 0 ? 75 : cast volume;
-			volume = -1;
-		} else
-			volume = cast mutedVolume;
 	}
 }
