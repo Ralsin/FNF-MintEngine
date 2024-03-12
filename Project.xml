@@ -6,7 +6,7 @@
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false" />
 
 
-	<!-- In case you want to hide the assets folder. Useful to prevent assets editing. Don't forget to clear the bin folder afterwards! -->
+	<!-- In case you want to hide the assets folder. Useful to prevent assets editing. -->
 	<define name="EMBED_ASSETS" />
 
 
@@ -16,14 +16,23 @@
 	<haxedef name="EMBED_ASSETS" if="EMBED_ASSETS" />
 	<assets path="assets" embed="true" if="EMBED_ASSETS" />
 	<assets path="assets" unless="EMBED_ASSETS" />
+	<section if="release">
+		<log info="Compiling for release! Optimization and files cleanup included (except saves).\nDon't forget to rename the bin folder before shipping!." if="hl" />
+		<haxedef name="release" />
+		<define name="dce" value="std" />
+		<define name="analyzer-optimize" />
+		<postbuild cmd="haxe --run Postbuild.hx --cleanup" if="hl" />
+	</section>
+	<assets path="include/windows" library="include" rename="" if="windows" />
 
 	<haxelib name="flixel" />
 	<haxelib name="flixel-addons" />
 	<haxelib name="hscript" />
 	<define name="hscriptPos" />
+	<define name="CUSTOM_CLASSES" />
+	<haxedef name="FLX_NO_SAVE" /> <!-- Thanks flixel, you're great (has no local saves support) -->
 	<haxedef name="FLX_NO_KEYBOARD" />
 	<haxedef name="FLX_NO_SOUND_TRAY" />
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
-	<haxedef name="HXC_DEBUG_TRACE" if="debug" />
 	<haxedef name="FLX_NO_DEBUG" unless="debug" />
 </project>

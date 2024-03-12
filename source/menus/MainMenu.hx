@@ -2,9 +2,9 @@ package menus;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
-import backend.AudioManager;
-import backend.Controls;
-import backend.MintFileManager;
+import api.AudioManager;
+import api.Controls;
+import api.MintFileManager;
 
 class MainMenu extends extendable.Menu {
 	public static var curSelected:Int = 0;
@@ -46,13 +46,15 @@ class MainMenu extends extendable.Menu {
 			final thing = spr.ID - curSelected;
 			final ass:Float = lerp(spr.scale.x, thing == 0 ? .85 : .65, e8);
 			spr.scale.set(ass, ass);
-			spr.x = lerp(spr.x, FlxG.width - spr.frameWidth + 250. * Math.abs(thing), e8);
+			// spr.x = lerp(spr.x, FlxG.width - spr.frameWidth + 250. * Math.abs(thing), e8);
 			spr.y = lerp(spr.y, FlxG.height * .5 - spr.frameHeight * .5 + thing * 270., e8);
+			spr.x = lerp(spr.x, 150 - 250 * Math.abs(thing), e8);
 		};
 		super.update(elapsed);
 	}
 
-	override function onKeyDown(repeated:Bool, keybind:String, key:String) {
+	override function onKeybindDown(keybind:String, repeated:Bool) {
+		trace('Keybind: $keybind; Repeated: $repeated');
 		if (selectedSomethin)
 			return;
 
@@ -67,15 +69,22 @@ class MainMenu extends extendable.Menu {
 				switch (menuItemsList[curSelected]) {
 					case 'freeplay':
 						selectedSomethin = false;
-						// MainState.instance.open(new menus.SongPicker());
+						// open(new menus.SongPicker());
 					case 'options':
 						selectedSomethin = false;
 					case 'credits':
 						selectedSomethin = false;
 				}
 		}
-		
-		selectedSomethin = false; // cuz no other menus yet
+	}
+	override function onKeyDown(key:String, repeated:Bool) {
+		trace('Key: $key; Repeated: $repeated');
+		if (key == 'M') {
+			selectedSomethin = true;
+			open(new Metronome());
+		}
+		if (key == 'F')
+			camera.setSize(camera.width == 1280 ? 1281 : 1280, camera.height == 720 ? 721 : 720);
 	}
 
 	override function onBeatHit(curBeat:Int) {

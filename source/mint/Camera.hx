@@ -52,7 +52,6 @@ class Camera extends flixel.FlxCamera {
 
 	public var parallaxActive:Bool = false;
 	public var parallaxMultiplier:Float = 10.;
-	public var mouseWorldPos(default, null):FlxPoint = FlxPoint.get();
 
 	public function new(x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0, zoom:Float = 0) {
 		super(x, y, width, height, zoom);
@@ -64,9 +63,8 @@ class Camera extends flixel.FlxCamera {
 			position.y = moveFunction(position.y, focusPoint.y, t);
 		}
 		if (parallaxActive) {
-			mouseWorldPos = FlxG.mouse.getWorldPosition();
-			_parallaxOffset.x = (mouseWorldPos.x / FlxG.width - .5) * parallaxMultiplier;
-			_parallaxOffset.y = (mouseWorldPos.y / FlxG.height - .5) * parallaxMultiplier;
+			_parallaxOffset.x = (openfl.Lib.current.mouseX / FlxG.width - .5) * parallaxMultiplier;
+			_parallaxOffset.y = (openfl.Lib.current.mouseY / FlxG.height - .5) * parallaxMultiplier;
 		}
 		updateShakeThing(t);
 		scroll.set(position.x + _shakeOffset.x + _parallaxOffset.x, position.y + _shakeOffset.y + _parallaxOffset.y);

@@ -1,23 +1,24 @@
-package backend;
+package api;
 
 import flixel.util.typeLimit.OneOfFour;
-import flixel.FlxG;
-import backend.AudioManager;
+import api.AudioManager;
 
 class Options {
-	static final Game_Version:String = '0.0.0 (unfinished preview)';
+	public static final Game_Version:String = '0.0.0 (unfinished preview)';
 
-	static var Volume(default, set):Float = .5;
-	static var AudioOffset(default, set):Float = .020; // 20 ms
+	public static var Volume(default, set):Int = 50;
+	public static var AudioOffset(default, set):Int = 0;
 
-	static var FlashingLights:Bool = true;
+	public static var FlashingLights:Bool = true;
+	public static var AllowGPU:Bool = false;
 
 	// static var gameProperties:GameProperties;
 
-	static function set_Volume(value:Float)
-		return Volume = FlxG.sound.volume = value;
+	static function set_Volume(value:Int) {
+		return Volume = mint.ui.VolumeTray.volume = value;
+	}
 
-	static function set_AudioOffset(value:Float):Float
+	static function set_AudioOffset(value:Int):Int
 		return AudioOffset = AudioManager.offset = value;
 }
 

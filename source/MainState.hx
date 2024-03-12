@@ -1,6 +1,3 @@
-import mint.ui.VolumeTray;
-import backend.Controls;
-import backend.MintFileManager;
 import lime.app.Future;
 import extendable.Menu;
 import flixel.tweens.FlxTween;
@@ -8,34 +5,40 @@ import flixel.FlxG;
 import flixel.FlxState;
 import flixel.util.FlxColor;
 import flixel.FlxSprite;
-import backend.AudioManager;
+import api.AudioManager;
 import mint.Camera;
+import api.Controls;
+import api.MintFileManager;
+import mint.ui.VolumeTray;
 
 class MainState extends FlxState {
+	public static var instance:MainState;
+
 	var gradient:FlxSprite;
 
-	// var transition:FlxSprite;
 	public var hue(default, set):Float = Math.random() * 359.;
 	public var gradientAlpha(default, set) = 1.;
 
 	static var updateBG:Bool = true;
 
-	public static var instance:MainState;
-
 	public var camBG:Camera;
 	public var camState:Camera;
 	public var camOverlay:Camera;
 
-	public var curSubState(default, null):Menu;
+	public var state(default, null):Menu;
+	public var stateStr(default, null):String;
+	public var stateTween:FlxTween;
 
 	override function create() {
 		camBG = new Camera();
 		camBG.bgColor = 0x00000000;
 		camBG.antialiasing = true;
 		FlxG.cameras.reset(camBG);
+
 		var bg = new FlxSprite().loadGraphic(MintFileManager.getImage('menuDesat', true));
 		bg.screenCenter();
 		bg.camera = camBG;
+		bg.active = false;
 		add(bg);
 
 		gradient = flixel.util.FlxGradient.createGradientFlxSprite(1, Std.int(bg.frameHeight + 400.), [FlxColor.TRANSPARENT, FlxColor.WHITE]);
@@ -44,22 +47,25 @@ class MainState extends FlxState {
 		gradient.y -= 200.;
 		gradient.blend = "multiply";
 		gradient.camera = camBG;
+		gradient.active = false;
 		add(gradient);
 
 		camState = new Camera();
-		camState.bgColor = 0x00000000;
+		camState.bgColor = 0xCC111115;
 		camState.antialiasing = true;
+		camState.filters = [new openfl.filters.ShaderFilter(new flixel.addons.display.FlxRuntimeShader(null, '
+			#pragma header
+			void main() {
+				#pragma body
+				gl_Position = openfl_Matrix * openfl_Position * mat4(.5, .1, 0., -.35, .1, 1., 0., 0., 0., 0., 0., 0., .65, -.1, 0., 1.5);
+			}
+		'))];
 		FlxG.cameras.add(camState, false);
 
 		camOverlay = new Camera();
 		camOverlay.bgColor = 0x00000000;
 		camOverlay.antialiasing = true;
 		FlxG.cameras.add(camOverlay, false);
-
-		// transition = new FlxSprite(-3480, 0).loadGraphic(Paths.image('transition'));
-		// transition.color = 0xFF000000;
-		// transition.camera = camOverlay;
-		// add(transition);
 
 		persistentUpdate = true;
 		instance = this;
@@ -68,7 +74,7 @@ class MainState extends FlxState {
 		FlxG.autoPause = false;
 		FlxG.fixedTimestep = false;
 
-		backend.Controls.init();
+		api.Controls.init();
 		VolumeTray.init();
 
 		open(new menus.MainMenu());
@@ -88,15 +94,9 @@ class MainState extends FlxState {
 				gradientAlpha = 1.;
 		}
 
-		if (curSubState != null) {
-			curSubState.update(elapsed);
-			var curBeat:Int = Math.floor((AudioManager.instrumental.time + AudioManager.offset) * .001 / AudioManager.crochet);
-			// trace(AudioManager.instrumental.time, curBeat, AudioManager.beat);
-			if (curBeat != AudioManager.beat) {
-				AudioManager.beat = curBeat;
-				if (curSubState != null)
-					curSubState.onBeatHit(AudioManager.beat);
-			}
+		if (state != null) {
+			Conductor.update(AudioManager.instrumental.time);
+			state.update(elapsed);
 		}
 		camBG.zoom = camState.zoom = camState.zoom + (1. - camState.zoom) * (elapsed * 8.);
 
@@ -104,45 +104,47 @@ class MainState extends FlxState {
 	}
 
 	public function open(the:Menu, hueShift:Float = -1.) {
-		trace('switching menu: ' + Type.getClassName(Type.getClass(the)));
+		var nextStateStr:String = Type.getClassName(Type.getClass(the));
+		trace('switching menu: ' + nextStateStr);
+
 		if (hueShift == -1.)
 			updateBG = true;
 		else {
 			updateBG = false;
 			FlxTween.num(hue, hueShift, 1., null, (num:Float) -> hue = num);
 		}
-		if (curSubState != null) {
-			// transition.x = -3480;
-			// FlxTween.tween(transition, {x: -1100}, 1., {ease: FlxEase.quartOut});
-			curSubState.onClose();
+		if (state != null) {
+			state.onClose();
 			FlxTween.tween(camState, {alpha: .0}, .7, {
 				onComplete: (twn:FlxTween) -> {
-					remove(curSubState);
-					curSubState.camera = null;
-					if (Type.getClassName(Type.getClass(curSubState)) != Type.getClassName(Type.getClass(the)))
-						curSubState.destroy();
+					remove(state);
+					state.camera = null;
+					if (Type.getClassName(Type.getClass(state)) != nextStateStr)
+						state.destroy();
+
 					var load:Future<Dynamic> = new Future(() -> the.create(), true);
 					load.onComplete((wtf:Dynamic) -> {
-						the.postCreate();
-						// FlxTween.tween(transition, {x: 1280}, 1., {ease: FlxEase.quadOut});
-						curSubState = the;
-						curSubState.camera = camState;
+						state = the;
+						stateStr = nextStateStr;
+						state.camera = camState;
+						MainState.instance.add(state);
+						flixel.tweens.FlxTween.tween(state.camera, {alpha: 1.}, .7, {onComplete: (_) -> state.onOpen()});
 					});
 				}
 			});
 		} else {
 			var load:Future<Dynamic> = new Future(() -> the.create(), true);
 			load.onComplete((wtf:Dynamic) -> {
-				the.postCreate();
-				curSubState = the;
-				curSubState.camera = camState;
+				state = the;
+				stateStr = nextStateStr;
+				state.camera = camState;
+				MainState.instance.add(state);
+				flixel.tweens.FlxTween.tween(state.camera, {alpha: 1.}, .7, {onComplete: (_) -> state.onOpen()});
 			});
 		}
 	}
 
-	public function onKeyDown(repeated:Bool, keybind:String, key:String) {
-		// trace('Repeated: $repeated, Keybind: $keybind');
-
+	public function onKeybindDown(keybind:String, autorepeat:Bool) {
 		switch keybind {
 			case 'Volume_Down':
 				VolumeTray.volume -= 5;
@@ -154,14 +156,8 @@ class MainState extends FlxState {
 				VolumeTray.toggleMute();
 				return;
 		}
-
-		if (curSubState != null)
-			curSubState.onKeyDown(repeated, keybind, key);
-	}
-
-	public function onKeyUp(keybind:String, key:String) {
-		if (curSubState != null)
-			curSubState.onKeyUp(keybind, key);
+		if (state != null)
+			state.onKeybindDown(keybind, autorepeat);
 	}
 
 	function set_hue(value:Float) {

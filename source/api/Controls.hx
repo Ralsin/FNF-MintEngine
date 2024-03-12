@@ -1,9 +1,9 @@
-package backend;
+package api;
 
-import flixel.input.FlxInput;
 import openfl.events.KeyboardEvent;
 import flixel.FlxG;
 import flixel.input.keyboard.FlxKey;
+import api.SaveManager;
 
 typedef Keybinds = Map<String, Array<String>>;
 
@@ -33,11 +33,11 @@ class Controls {
 		if (keybinds != null)
 			return;
 
-		if (FlxG.save.data.keybinds == null) {
-			keybinds = FlxG.save.data.keybinds = defaultKeybinds;
-			FlxG.save.flush();
+		if (SaveManager.save.data.keybinds == null) {
+			keybinds = SaveManager.save.data.keybinds = defaultKeybinds;
+			SaveManager.save.save();
 		} else
-			keybinds = FlxG.save.data.keybinds;
+			keybinds = SaveManager.save.data.keybinds;
 
 		// checking for missing keybinds
 		var anyKeybindMissing:Bool = false;
@@ -49,30 +49,30 @@ class Controls {
 
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, (event:KeyboardEvent) -> {
 			var key = resolve(event);
+			var touchedKeybinds:Array<String> = [];
 			if (holdTime.get(key) == null) {
-				for (bind => keys in keybinds) {
+				for (bind => keys in keybinds)
 					if (keys[0] == key || keys[1] == key)
-						MainState.instance.onKeyDown(false, bind, key);
-				}
+						MainState.instance.onKeybindDown(bind, false);
 				holdTime.set(key, 0.);
+				MainState.instance.state.onKeyDown(key, false);
 			} else {
 				for (key in holdTime.keys()) {
-					for (bind => keys in keybinds) {
+					for (bind => keys in keybinds)
 						if (keys[0] == key || keys[1] == key)
-							MainState.instance.onKeyDown(true, bind, key);
-					}
+							MainState.instance.onKeybindDown(bind, true);
 				}
+				MainState.instance.state.onKeyDown(key, true);
 			}
 		});
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, (event:KeyboardEvent) -> {
 			var key = resolve(event);
 			holdTime.remove(key);
 			for (bind => keys in keybinds) {
-				if (keys[0] == key || keys[1] == key) {
-					MainState.instance.onKeyUp(bind, key);
-					MainState.instance.curSubState.onKeyUp(bind, key);
-				}
+				if (keys[0] == key || keys[1] == key)
+					MainState.instance.state.onKeybindUp(bind);
 			}
+			MainState.instance.state.onKeyUp(key);
 		});
 	}
 
@@ -91,8 +91,8 @@ class Controls {
 	}
 
 	public static function saveKeybinds() {
-		FlxG.save.data.keybinds = keybinds;
-		FlxG.save.flush();
+		SaveManager.save.data.keybinds = keybinds;
+		SaveManager.save.save();
 	}
 
 	public static function isKeyHeld(key:String) {

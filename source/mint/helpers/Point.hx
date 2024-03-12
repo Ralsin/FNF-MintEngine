@@ -1,7 +1,5 @@
 package mint.helpers;
 
-import flixel.math.FlxPoint;
-
 class Point {
 	public var x:Float = 0.;
 	public var y:Float = 0.;

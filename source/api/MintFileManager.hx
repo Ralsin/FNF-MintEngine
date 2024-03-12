@@ -1,9 +1,10 @@
-package backend;
+package api;
 
+import api.ChartParser.ChartData;
+import openfl.display3D.textures.RectangleTexture;
 #if EMBED_ASSETS
 import openfl.Assets;
 #end
-import menus.PlayState.SongData;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.display.BitmapData;
@@ -29,7 +30,7 @@ class MintFileManager {
 		return null;
 	}
 
-	public inline static function getImage(path:String, ignoreModFiles:Bool = false, persist:Bool = false):FlxGraphic {
+	public inline static function getImage(path:String, ignoreModFiles:Bool = false, persist:Bool = false, avoidGPU:Bool = false):FlxGraphic {
 		path = 'images/' + path + '.png';
 		var fpath:String = switch existsType(path, ignoreModFiles) {
 			case 'mod':
@@ -41,10 +42,32 @@ class MintFileManager {
 		}
 		if (fpath != null) {
 			#if EMBED_ASSETS
-			var graphic = FlxGraphic.fromBitmapData(Assets.getBitmapData(fpath), false, path);
+			var bitmap:BitmapData = Assets.getBitmapData(fpath);
 			#else
-			var graphic = FlxGraphic.fromBitmapData(BitmapData.fromFile(fpath), false, path);
+			var bitmap:BitmapData = BitmapData.fromFile(fpath);
 			#end
+			if (api.Options.AllowGPU && !avoidGPU) {
+				trace('[MFM] Loading $path into GPU.');
+				// var tex:RectangleTexture = flixel.FlxG.stage.context3D.createRectangleTexture(bitmap.width, bitmap.height, BGRA, true);
+				// tex.uploadFromBitmapData(bitmap);
+				// bitmap.image.data = null;
+				// bitmap.dispose();
+				// bitmap = BitmapData.fromTexture(tex);
+				@:privateAccess {
+					bitmap.lock();
+					if (bitmap.__texture == null) {
+						bitmap.image.premultiplied = true;
+						bitmap.getTexture(flixel.FlxG.stage.context3D);
+					}
+					bitmap.getSurface();
+					bitmap.disposeImage();
+					bitmap.image.data = null;
+					bitmap.image = null;
+					bitmap.readable = true;
+				}
+				trace('[MFM] Finished loading $path into GPU.');
+			}
+			var graphic = FlxGraphic.fromBitmapData(bitmap, false, path);
 			graphic.persist = persist;
 			return graphic;
 		}
@@ -52,8 +75,8 @@ class MintFileManager {
 		return null;
 	}
 
-	public inline static function getFrames(path:String, ignoreModFiles:Bool = false, persist:Bool = false) {
-		var image:FlxGraphic = getImage(path, ignoreModFiles, persist);
+	public inline static function getFrames(path:String, ignoreModFiles:Bool = false, persist:Bool = false, avoidGPU:Bool = false) {
+		var image:FlxGraphic = getImage(path, ignoreModFiles, persist, avoidGPU);
 		path = 'images/$path.xml';
 		#if EMBED_ASSETS
 		var atlas:String = existsType(path, ignoreModFiles) == 'mod' ? File.getContent(modCacheFolder + path) : Assets.getText('assets/' + path);
@@ -151,12 +174,27 @@ class MintFileManager {
 		return audios;
 	}
 
-	public inline static function getSongData(path:String):SongData {
+	public inline static function getChart(path:String):ChartData {
 		#if EMBED_ASSETS
 		return readJson(Assets.getText(path+'.json'));
 		#else
 		return readJson(File.getContent(path+'.json'));
 		#end
+	}
+
+	public inline static function getText(path:String, ignoreModFiles:Bool = false) {
+		var fpath:String = switch existsType(path, ignoreModFiles) {
+			case 'mod':
+				modCacheFolder + path;
+			case 'asset':
+				'assets/' + path;
+			default:
+				null;
+		}
+		if (fpath != null)
+			return#if EMBED_ASSETS Assets.getText#else File.getContent#end(fpath); // less readable, hehehehaw
+
+		return null;
 	}
 
 	public static function readJson(json:String):Dynamic {

@@ -1,7 +1,7 @@
 @echo off
 setlocal
 echo Building the game...
-lime build hl
+lime build hl -release -dce full -D analyzer-optimize
 echo Done!
 :PROMPT
 set /P ays=Would you like to clean up the bin folder (Y/[N])? 
