@@ -2,7 +2,7 @@
 <project>
 	<app title="Friday Night Funkin': Mint Engine" file="MintEngine" packageName="com.ralsi.mintengine" package="com.ralsi.mintengine" main="Main" version="0.0.1" company="Ralsi" />
 
-	<window width="1280" height="720" fps="" background="0x00000000" hardware="true" vsync="false" />
+	<window width="1280" height="720" fps="" background="#000000" hardware="true" vsync="false" />
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false" />
 
 
